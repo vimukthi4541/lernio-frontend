@@ -1,22 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Mail, Lock, LogIn, UserPlus, Sun, Moon, Eye, EyeOff } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+const InputWrapper = ({ icon: Icon, ...props }) => (
+    <div className="relative group">
+        <Icon className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={24} />
+        <input 
+            {...props} 
+            className="w-full pl-14 pr-14 py-4 border border-gray-100 dark:border-slate-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-blue-400 transition bg-gray-50 dark:bg-slate-700 dark:text-white text-lg shadow-inner"
+        />
+    </div>
+);
+
 const Login = () => {
-    const [darkMode, setDarkMode] = useState(false);
+    // 1. Initialize theme from localStorage
+    const [darkMode, setDarkMode] = useState(() => {
+        return localStorage.getItem('theme') === 'dark';
+    });
+    
     const [showPassword, setShowPassword] = useState(false);
 
-    const toggleDarkMode = () => {
-        setDarkMode(!darkMode);
-        if (!darkMode) {
+    // 2. Persistent Theme Effect
+    useEffect(() => {
+        if (darkMode) {
             document.documentElement.classList.add('dark');
+            localStorage.setItem('theme', 'dark');
         } else {
             document.documentElement.classList.remove('dark');
+            localStorage.setItem('theme', 'light');
         }
+    }, [darkMode]);
+
+    const toggleDarkMode = () => {
+        setDarkMode(prev => !prev);
     };
 
     return (
-        <div className="min-h-screen bg-blue-50 dark:bg-slate-900 flex items-center justify-center p-6 transition-colors duration-300">
+        <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex items-center justify-center p-6 transition-colors duration-300">
             
             <div className="absolute top-10 right-10">
                 <button 
@@ -59,26 +79,16 @@ const Login = () => {
                 </div>
 
                 <div className="mt-10 pt-6 border-t border-gray-100 dark:border-slate-700 text-center">
-    <p className="text-gray-600 dark:text-slate-400 font-medium">
-        Don't have an account yet?
-        <Link to="/register" className="ml-2 text-blue-600 dark:text-blue-400 font-bold hover:underline inline-flex items-center gap-1.5">
-            <UserPlus size={18} /> Register Now
-        </Link>
-    </p>
-</div>
+                    <p className="text-gray-600 dark:text-slate-400 font-medium">
+                        Don't have an account yet?
+                        <Link to="/register" className="ml-2 text-blue-600 dark:text-blue-400 font-bold hover:underline inline-flex items-center gap-1.5">
+                            <UserPlus size={18} /> Register Now
+                        </Link>
+                    </p>
+                </div>
             </div>
         </div>
     );
 };
-
-const InputWrapper = ({ icon: Icon, ...props }) => (
-    <div className="relative">
-        <Icon className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" size={24} />
-        <input 
-            {...props} 
-            className="w-full pl-14 pr-14 py-4 border border-gray-100 dark:border-slate-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-blue-400 transition bg-gray-50 dark:bg-slate-700 dark:text-white text-lg shadow-inner"
-        />
-    </div>
-);
 
 export default Login;

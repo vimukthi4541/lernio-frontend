@@ -165,7 +165,11 @@ const RegisterPart2 = ({ formData, setFormData, handleChange, provinces, distric
 );
 
 const Register = () => {
-    const [darkMode, setDarkMode] = useState(false);
+    // 1. Initial State from localStorage to prevent flicker
+    const [darkMode, setDarkMode] = useState(() => {
+        return localStorage.getItem('theme') === 'dark';
+    });
+    
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [step, setStep] = useState(1);
@@ -198,24 +202,19 @@ const Register = () => {
         "Sabaragamuwa": ["Ratnapura", "Kegalle"]
     };
 
+    // 2. Persistent Theme Effect
     useEffect(() => {
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'dark') {
-            setDarkMode(true);
-            document.documentElement.classList.add('dark');
-        }
-    }, []);
-
-    const toggleDarkMode = () => {
-        const newDarkMode = !darkMode;
-        setDarkMode(newDarkMode);
-        if (newDarkMode) {
+        if (darkMode) {
             document.documentElement.classList.add('dark');
             localStorage.setItem('theme', 'dark');
         } else {
             document.documentElement.classList.remove('dark');
             localStorage.setItem('theme', 'light');
         }
+    }, [darkMode]);
+
+    const toggleDarkMode = () => {
+        setDarkMode(prev => !prev);
     };
 
     const handleChange = (e) => {
