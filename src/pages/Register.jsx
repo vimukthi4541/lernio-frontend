@@ -70,7 +70,8 @@ const RegisterPart2 = ({ formData, setFormData, handleChange, provinces, distric
                 <InputWrapper icon={User} placeholder="Last Name" type="text" name="lastName" value={formData.lastName} onChange={handleChange} />
             </div>
 
-            <div className="relative group">
+            {/* --- UPDATED DOB INPUT SECTION --- */}
+            <div className="relative group date-input-container">
                 <Calendar className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={20} />
                 <input 
                     name="dob"
@@ -78,11 +79,11 @@ const RegisterPart2 = ({ formData, setFormData, handleChange, provinces, distric
                     onChange={handleChange}
                     type="text"
                     onFocus={(e) => (e.target.type = "date")}
-                    onBlur={(e) => (e.target.type = "text")}
+                    onBlur={(e) => { if(!e.target.value) e.target.type = "text" }}
+                    onClick={(e) => e.target.showPicker && e.target.showPicker()}
                     placeholder="Date of Birth" 
-                    className="w-full pl-14 pr-14 py-4 bg-gray-50 dark:bg-slate-700 border border-gray-100 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition dark:text-white placeholder:text-gray-400 dark:placeholder:text-slate-500 text-base" 
+                    className="w-full pl-14 pr-5 py-4 bg-gray-50 dark:bg-slate-700 border border-gray-100 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition dark:text-white placeholder:text-gray-400 dark:placeholder:text-slate-500 text-base" 
                 />
-                <Calendar className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={18} />
             </div>
 
             <InputWrapper icon={Phone} placeholder="Phone Number" type="tel" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} />
@@ -165,7 +166,6 @@ const RegisterPart2 = ({ formData, setFormData, handleChange, provinces, distric
 );
 
 const Register = () => {
-    // 1. Initial State from localStorage to prevent flicker
     const [darkMode, setDarkMode] = useState(() => {
         return localStorage.getItem('theme') === 'dark';
     });
@@ -202,7 +202,6 @@ const Register = () => {
         "Sabaragamuwa": ["Ratnapura", "Kegalle"]
     };
 
-    // 2. Persistent Theme Effect
     useEffect(() => {
         if (darkMode) {
             document.documentElement.classList.add('dark');
