@@ -1,86 +1,74 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Mail, Lock, LogIn, UserPlus, Sun, Moon, Eye, EyeOff } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-
-const InputWrapper = ({ icon: Icon, ...props }) => (
-    <div className="relative group">
-        <Icon className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={24} />
-        <input 
-            {...props} 
-            className="w-full pl-14 pr-14 py-4 border border-gray-100 dark:border-slate-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-blue-400 transition bg-gray-50 dark:bg-slate-700 dark:text-white text-lg shadow-inner"
-        />
-    </div>
-);
+import toast from 'react-hot-toast';
+import api from '../api/axios';
 
 const Login = () => {
     const navigate = useNavigate();
-    
-    // --- 1. States for Input Fields ---
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    
-    const [darkMode, setDarkMode] = useState(() => {
-        return localStorage.getItem('theme') === 'dark';
-    });
+    const [darkMode, setDarkMode] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [formData, setFormData] = useState({
+        email: '',
+        password: ''
+    });
 
-    useEffect(() => {
-        if (darkMode) {
-            document.documentElement.classList.add('dark');
-            localStorage.setItem('theme', 'dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-            localStorage.setItem('theme', 'light');
-        }
-    }, [darkMode]);
-
-    const toggleDarkMode = () => {
-        setDarkMode(prev => !prev);
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    // --- 2. Handle Login Function ---
     const handleLogin = async (e) => {
         e.preventDefault();
+        setLoading(true);
         try {
-            const response = await axios.post('http://localhost:5000/api/auth/login', { 
-                email, 
-                password 
-            });
-            
-            alert(response.data.message);
-            console.log("Logged In:", response.data.user);
-            
-            
-        } catch (err) {
-            alert(err.response?.data?.message || "Login Failed!");
+            const response = await api.post('/api/auth/login', formData);
+            toast.success("Login successful!");
+            // setTimeout(() => navigate('/dashboard'), 2000); // Redirect logic later
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Login failed. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const toggleDarkMode = () => {
+        setDarkMode(!darkMode);
+        if (!darkMode) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
         }
     };
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex items-center justify-center p-6 transition-colors duration-300">
+            
             <div className="absolute top-10 right-10">
-                <button onClick={toggleDarkMode} className="p-3 rounded-full bg-white dark:bg-slate-800 shadow-lg text-blue-600 dark:text-yellow-400 transition-all hover:scale-110">
+                <button 
+                    onClick={toggleDarkMode}
+                    className="p-3 rounded-full bg-white dark:bg-slate-800 shadow-lg text-blue-600 dark:text-yellow-400 transition-all hover:scale-110"
+                >
                     {darkMode ? <Sun size={24} /> : <Moon size={24} />}
                 </button>
             </div>
 
-            <div className="bg-white dark:bg-slate-800 p-12 rounded-3xl shadow-2xl w-full max-w-lg transition-colors duration-300">
+            <div className="bg-white dark:bg-slate-800 p-12 rounded-3xl shadow-2xl w-full max-w-lg transition-colors duration-300 border border-gray-100 dark:border-slate-700 my-10">
+                
                 <div className="text-center mb-12">
                     <h1 className="text-5xl font-extrabold text-blue-950 dark:text-white">Lernio.lk</h1>
                     <p className="text-xl text-gray-500 dark:text-slate-400 mt-3 font-medium">Welcome back!</p>
-                    <h2 className="text-2xl font-semibold text-gray-800 dark:text-slate-200 mt-6">Login to Your Account</h2>
+                    <h2 className="text-2xl font-semibold text-gray-800 dark:text-white mt-6">Login to Your Account</h2>
                 </div>
 
-                {/* --- 3. Wrap inputs in a Form --- */}
-                <form onSubmit={handleLogin} className="space-y-6">
+                <div className="space-y-6">
                     <InputWrapper 
                         icon={Mail} 
                         placeholder="Email Address" 
                         type="email" 
-                        required 
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
                     />
                     
                     <div className="relative">
@@ -88,22 +76,30 @@ const Login = () => {
                             icon={Lock} 
                             placeholder="Password" 
                             type={showPassword ? "text" : "password"} 
-                            required
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
+                            name="password"
+                            value={formData.password}
+                            onChange={handleChange}
                         />
-                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-500 transition-colors">
+                        <button 
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-500 transition-colors"
+                        >
                             {showPassword ? <EyeOff size={22} /> : <Eye size={22} />}
                         </button>
                     </div>
 
-                    <button type="submit" className="w-full flex items-center justify-center gap-3 bg-blue-600 text-white p-4 rounded-xl font-bold text-lg hover:bg-blue-700 transition shadow-lg active:scale-95">
-                        <LogIn size={22} /> Login
+                    <button 
+                        onClick={handleLogin}
+                        disabled={loading}
+                        className="w-full flex items-center justify-center gap-3 bg-blue-600 text-white p-4 rounded-xl font-bold text-lg hover:bg-blue-700 transition shadow-lg shadow-blue-200 dark:shadow-none disabled:opacity-50"
+                    >
+                        <LogIn size={22} /> {loading ? 'Logging in...' : 'Login'}
                     </button>
-                </form>
+                </div>
 
                 <div className="mt-10 pt-6 border-t border-gray-100 dark:border-slate-700 text-center">
-                    <p className="text-gray-600 dark:text-slate-400 font-medium">
+                    <p className="text-gray-500 dark:text-slate-400 font-medium">
                         Don't have an account yet?
                         <Link to="/register" className="ml-2 text-blue-600 dark:text-blue-400 font-bold hover:underline inline-flex items-center gap-1.5">
                             <UserPlus size={18} /> Register Now
@@ -114,5 +110,15 @@ const Login = () => {
         </div>
     );
 };
+
+const InputWrapper = ({ icon: Icon, ...props }) => (
+    <div className="relative group">
+        <Icon className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={20} />
+        <input 
+            {...props} 
+            className="w-full pl-14 pr-14 py-4 bg-gray-50 dark:bg-slate-700 border border-gray-100 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-slate-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-slate-500" 
+        />
+    </div>
+);
 
 export default Login;
