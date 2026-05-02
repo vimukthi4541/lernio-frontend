@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, Lock, LogIn, UserPlus, Sun, Moon, Eye, EyeOff, ArrowRight, User, Phone, MapPin, School, ArrowLeft, ShieldCheck, Calendar, Upload, MessageCircle, ChevronDown } from 'lucide-react';
+import { Mail, Lock, LogIn, UserPlus, Sun, Moon, Eye, EyeOff, ArrowRight, User, Phone, MapPin, School, ArrowLeft, ShieldCheck, Calendar, MessageCircle, ChevronDown } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import api from '../api/axios';
@@ -56,7 +56,17 @@ const RegisterPart1 = ({ formData, handleChange, showPassword, setShowPassword, 
 
             <div className="flex justify-end pt-2">
                 <button
-                    onClick={() => setStep(2)}
+                    onClick={() => {
+                        if(!formData.email || !formData.password || !formData.confirmPassword) {
+                            toast.error("Please fill all fields");
+                            return;
+                        }
+                        if(formData.password !== formData.confirmPassword) {
+                            toast.error("Passwords do not match");
+                            return;
+                        }
+                        setStep(2);
+                    }}
                     className="w-2/4 flex items-center justify-center gap-2 bg-blue-600 text-white p-4 rounded-xl font-bold text-lg hover:bg-blue-700 transition shadow-xl active:scale-95"
                 >
                     Next Step <ArrowRight size={22} />
@@ -72,25 +82,20 @@ const RegisterPart2 = ({ formData, handleChange, selectedProvince, setSelectedPr
             <h1 className="text-4xl font-black text-blue-950 dark:text-white tracking-tight">Personal Info</h1>
         </div>
         <div className="space-y-6">
-
             <div className="flex gap-4">
                 <InputWrapper icon={User} placeholder="First Name" type="text" name="firstName" value={formData.firstName} onChange={handleChange} />
                 <InputWrapper icon={User} placeholder="Last Name" type="text" name="lastName" value={formData.lastName} onChange={handleChange} />
             </div>
 
             <div className="relative group">
-                <Calendar className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={20} />
+                <Calendar className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors z-10" size={20} />
                 <input
-                    type="text"
+                    type="date"
                     name="dob"
                     value={formData.dob}
                     onChange={handleChange}
-                    onFocus={(e) => (e.target.type = "date")}
-                    onBlur={(e) => (e.target.type = "text")}
-                    placeholder="Date of Birth"
-                    className="w-full pl-14 pr-14 py-4 bg-gray-50 dark:bg-slate-700 border border-gray-100 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition dark:text-white placeholder:text-gray-400 dark:placeholder:text-slate-500 text-base"
+                    className="w-full pl-14 pr-5 py-4 bg-gray-50 dark:bg-slate-700 border border-gray-100 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition dark:text-white text-slate-900 appearance-none"
                 />
-                <Calendar className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={18} />
             </div>
 
             <InputWrapper icon={Phone} placeholder="Phone Number" type="tel" name="phone" value={formData.phone} onChange={handleChange} />
@@ -99,11 +104,12 @@ const RegisterPart2 = ({ formData, handleChange, selectedProvince, setSelectedPr
             <div className="relative group">
                 <MapPin className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={20} />
                 <select
+                    value={selectedProvince}
                     onChange={(e) => { setSelectedProvince(e.target.value); setSelectedDistrict(""); }}
                     className="w-full pl-14 pr-12 py-4 bg-gray-50 dark:bg-slate-700 border border-gray-100 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-900 dark:text-white text-base appearance-none transition-colors"
                 >
                     <option value="">Select Province</option>
-                    {provinces.map(p => <option key={p} value={p} className="text-slate-900 dark:text-white">{p}</option>)}
+                    {provinces.map(p => <option key={p} value={p}>{p}</option>)}
                 </select>
                 <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={18} />
             </div>
@@ -112,12 +118,13 @@ const RegisterPart2 = ({ formData, handleChange, selectedProvince, setSelectedPr
                 <MapPin className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={20} />
                 <select
                     value={selectedDistrict}
+                    disabled={!selectedProvince}
                     onChange={(e) => setSelectedDistrict(e.target.value)}
-                    className="w-full pl-14 pr-12 py-4 bg-gray-50 dark:bg-slate-700 border border-gray-100 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-900 dark:text-white text-base appearance-none transition-colors"
+                    className="w-full pl-14 pr-12 py-4 bg-gray-50 dark:bg-slate-700 border border-gray-100 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-900 dark:text-white text-base appearance-none transition-colors disabled:opacity-50"
                 >
                     <option value="">Select District</option>
                     {selectedProvince && districtsByProvince[selectedProvince].map(d => (
-                        <option key={d} value={d} className="text-slate-900 dark:text-white">{d}</option>
+                        <option key={d} value={d}>{d}</option>
                     ))}
                 </select>
                 <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={18} />
@@ -133,26 +140,14 @@ const RegisterPart2 = ({ formData, handleChange, selectedProvince, setSelectedPr
                     onChange={handleChange}
                     className="w-full pl-14 pr-12 py-4 bg-gray-50 dark:bg-slate-700 border border-gray-100 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-900 dark:text-white text-base appearance-none transition-colors">
                     <option value="">Select Your School</option>
-                    <option value="Royal College, Colombo" className="text-slate-900 dark:text-white">Royal College, Colombo</option>
-                    <option value="Ananda College, Colombo" className="text-slate-900 dark:text-white">Ananda College, Colombo</option>
+                    <option value="Royal College, Colombo">Royal College, Colombo</option>
+                    <option value="Ananda College, Colombo">Ananda College, Colombo</option>
                 </select>
                 <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={18} />
             </div>
 
-            <div className="border-2 border-dashed border-gray-100 dark:border-slate-700 rounded-3xl p-8 flex flex-col items-center justify-center bg-gray-50/30 dark:bg-slate-800/50">
-                <div className="w-20 h-20 bg-gray-100 dark:bg-slate-700 rounded-full flex items-center justify-center border-4 border-white dark:border-slate-600 shadow-sm mb-6">
-                    <User className="text-gray-400" size={32} />
-                </div>
-                <p className="text-sm text-slate-500 dark:text-slate-400 text-center mb-6 leading-relaxed px-4">
-                    Upload a professional profile photo. JPG, PNG or WebP allowed.
-                </p>
-                <button className="flex items-center gap-2 bg-blue-100 dark:bg-blue-900/50 text-blue-900 dark:text-blue-100 px-6 py-3 rounded-xl font-bold hover:bg-blue-200 dark:hover:bg-blue-800 transition active:scale-95">
-                    <Upload size={18} /> Upload Photo
-                </button>
-            </div>
-
             <div className="flex gap-4 pt-4">
-                <button onClick={() => setStep(1)} className="w-1/3 flex items-center justify-center gap-2 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-200 p-4 rounded-xl font-bold hover:bg-gray-500 transition active:scale-95">
+                <button onClick={() => setStep(1)} className="w-1/3 flex items-center justify-center gap-2 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-200 p-4 rounded-xl font-bold hover:bg-gray-200 transition active:scale-95">
                     <ArrowLeft size={22} /> Back
                 </button>
                 <button onClick={handleRegister} disabled={loading} className="w-2/3 flex items-center justify-center gap-3 bg-blue-600 text-white p-4 rounded-xl font-bold text-lg hover:bg-blue-700 transition shadow-xl active:scale-95 disabled:opacity-50">
@@ -169,38 +164,43 @@ const Register = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [step, setStep] = useState(1);
+    const [selectedProvince, setSelectedProvince] = useState("");
+    const [selectedDistrict, setSelectedDistrict] = useState("");
+    const [loading, setLoading] = useState(false);
 
     const [formData, setFormData] = useState({
         email: '', password: '', confirmPassword: '', firstName: '', lastName: '',
         dob: '', phone: '', whatsapp: '', homeAddress: '', school: ''
     });
-    const [loading, setLoading] = useState(false);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
     const handleRegister = async () => {
-        if (formData.password !== formData.confirmPassword) {
-            toast.error("Passwords do not match");
+        // Validation check for mandatory fields
+        if (!formData.firstName || !formData.lastName || !selectedProvince || !selectedDistrict) {
+            toast.error("Please fill all required fields");
             return;
         }
+
         setLoading(true);
         try {
-            const payload = { ...formData, province: selectedProvince, district: selectedDistrict };
-            // Send the registration payload to the backend
-            const response = await api.post('/api/auth/register', payload);
+            const payload = { 
+                ...formData, 
+                province: selectedProvince, 
+                district: selectedDistrict,
+                role: 'student' 
+            };
+            await api.post('/api/auth/register', payload);
             toast.success("Registration successful!");
             setTimeout(() => navigate('/login'), 2000);
         } catch (error) {
-            toast.error(error.response?.data?.message || "Registration failed. Please try again.");
+            toast.error(error.response?.data?.message || "Registration failed");
         } finally {
             setLoading(false);
         }
     };
-
-    const [selectedProvince, setSelectedProvince] = useState("");
-    const [selectedDistrict, setSelectedDistrict] = useState("");
 
     useEffect(() => {
         const savedTheme = localStorage.getItem('theme');
@@ -224,18 +224,13 @@ const Register = () => {
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex items-center justify-center p-6 transition-colors duration-300">
-
             <div className="absolute top-10 right-10">
-                <button
-                    onClick={toggleDarkMode}
-                    className="p-3 rounded-full bg-white dark:bg-slate-800 shadow-lg text-blue-600 dark:text-yellow-400 transition-all hover:scale-110"
-                >
+                <button onClick={toggleDarkMode} className="p-3 rounded-full bg-white dark:bg-slate-800 shadow-lg text-blue-600 dark:text-yellow-400 transition-all hover:scale-110">
                     {darkMode ? <Sun size={24} /> : <Moon size={24} />}
                 </button>
             </div>
 
             <div className="bg-white dark:bg-slate-800 p-12 rounded-3xl shadow-2xl w-full max-w-lg transition-colors duration-300 border border-gray-100 dark:border-slate-700 my-10">
-
                 {step === 1 ? (
                     <RegisterPart1
                         formData={formData}
@@ -263,9 +258,7 @@ const Register = () => {
                 <div className="mt-10 pt-6 border-t border-gray-100 dark:border-slate-700 text-center">
                     <p className="text-gray-500 dark:text-slate-400 font-medium">
                         Already have an account?
-                        <Link to="/login" className="ml-2 text-blue-600 dark:text-blue-400 font-bold hover:underline">
-                            Log in
-                        </Link>
+                        <Link to="/login" className="ml-2 text-blue-600 dark:text-blue-400 font-bold hover:underline">Log in</Link>
                     </p>
                 </div>
             </div>

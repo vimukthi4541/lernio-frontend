@@ -3,10 +3,10 @@ import { useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import StudentDashboard from './pages/StudentDashboard';
 
 function App() {
   
-  // This effect runs when the entire app loads
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'dark') {
@@ -23,6 +23,12 @@ function App() {
         <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        
+        {/* Student Dashboard Route */}
+        <Route path="/dashboard/student" element={<StudentDashboard />} />
+        
+        {/* Redirect unknown routes to login */}
+        <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
     </Router>
   );
