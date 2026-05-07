@@ -75,7 +75,7 @@ const StudentDashboard = () => {
 
         <div className="p-4 border-t border-blue-900 dark:border-slate-800">
           <button 
-            onClick={() => { localStorage.removeItem("token"); navigate("/login"); }}
+            onClick={() => { localStorage.clear(); navigate("/login", { replace: true }); }}
             className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-500/10 rounded-xl text-sm transition-all"
           >
             <LogOut size={18} /> Logout

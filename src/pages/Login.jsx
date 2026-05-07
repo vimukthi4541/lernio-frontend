@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Mail, Lock, LogIn, Sun, Moon, Eye, EyeOff, UserPlus } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -17,6 +17,12 @@ const Login = () => {
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
+
+    useEffect(() => {
+        if (localStorage.getItem('token')) {
+            navigate('/dashboard/student');
+        }
+    }, [navigate]);
 
     const handleLogin = async (e) => {
         e.preventDefault();

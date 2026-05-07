@@ -177,6 +177,12 @@ const Register = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    useEffect(() => {
+        if (localStorage.getItem('token')) {
+            navigate('/dashboard/student');
+        }
+    }, [navigate]);
+
     const handleRegister = async () => {
         // Validation check for mandatory fields
         if (!formData.firstName || !formData.lastName || !selectedProvince || !selectedDistrict) {

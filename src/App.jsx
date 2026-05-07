@@ -4,6 +4,7 @@ import { Toaster } from 'react-hot-toast';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import StudentDashboard from './pages/StudentDashboard';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   
@@ -25,7 +26,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         
         {/* Student Dashboard Route */}
-        <Route path="/dashboard/student" element={<StudentDashboard />} />
+        <Route path="/dashboard/student" element={<ProtectedRoute><StudentDashboard /></ProtectedRoute>} />
         
         {/* Redirect unknown routes to login */}
         <Route path="*" element={<Navigate to="/login" />} />
